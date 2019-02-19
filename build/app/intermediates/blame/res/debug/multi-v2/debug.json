@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "/Users/mkmad/projects/android/flutter_app/build/app/intermediates/res/merged/debug/values_values.arsc.flat",
+            "outputFile": "/Users/mkmad/projects/flutter/dartExample/build/app/intermediates/res/merged/debug/values_values.arsc.flat",
             "map": [
                 {
-                    "source": "/Users/mkmad/projects/android/flutter_app/android/app/src/main/res/values/styles.xml",
+                    "source": "/Users/mkmad/projects/flutter/dartExample/android/app/src/main/res/values/styles.xml",
                     "from": {
                         "startLines": "2",
                         "startColumns": "4",
