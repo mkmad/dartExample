@@ -14,8 +14,19 @@ class Login extends StatefulWidget {
 class LoginState extends State<Login> {
   final String title = "Login";
 
+  // controllers for the text fields
   final TextEditingController _userController = new TextEditingController();
   final TextEditingController _passwordController = new TextEditingController();
+
+  // This var keeps track of the radio button's state
+  int radioGroupVal = 0;
+
+  // radio button handler that changes the states of the buttons
+  void radioHandler(int value) {
+    setState(() {
+      this.radioGroupVal = value;
+    });
+  }
 
   // clearing the text fields using setState
   void _clearFields() {
@@ -119,6 +130,45 @@ class LoginState extends State<Login> {
                     ),
                   ),
                 )
+              ],
+            ),
+
+            // Row for radio buttons
+
+            // Note: Radio buttons are coupled together using the groupValue
+            //       parameter, and we also declare the radio handler in the
+            //       onChanged attribute which triggers a setState that changes
+            //       the groupValue's value
+            new Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                new Radio(
+                    activeColor: Colors.pink,
+                    value: 0,
+                    groupValue: radioGroupVal,
+                    onChanged: radioHandler),
+                new Text(
+                  "first",
+                  style: new TextStyle(color: Colors.black),
+                ),
+                new Radio(
+                    activeColor: Colors.green,
+                    value: 1,
+                    groupValue: radioGroupVal,
+                    onChanged: radioHandler),
+                new Text(
+                  "Second",
+                  style: new TextStyle(color: Colors.black),
+                ),
+                new Radio(
+                    activeColor: Colors.purple,
+                    value: 2,
+                    groupValue: radioGroupVal,
+                    onChanged: radioHandler),
+                new Text(
+                  "Third",
+                  style: new TextStyle(color: Colors.black),
+                ),
               ],
             )
           ],
