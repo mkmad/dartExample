@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'scaffoldStatelessExample.dart';
-import 'scaffoldStatefulExample.dart';
+import 'package:flutter_app/scaffold/scaffoldStatelessExample.dart';
+import 'package:flutter_app/scaffold/scaffoldStatefulExample.dart';
+import "login/login.dart";
 
 void main() {
   var title = "Scaffold example";
@@ -9,6 +10,9 @@ void main() {
     //home: new ScaffoldStatelessWidget(title: title,),
 
     // State full Widget
-    home: new ScaffoldStatefullWidget(title: title),
+    // home: new ScaffoldStatefullWidget(title: title),
+
+    // Login page
+    home: new Login(),
   ));
 }
