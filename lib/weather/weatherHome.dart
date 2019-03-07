@@ -36,65 +36,115 @@ class CustomState extends State<WeatherHome> {
     String url =
         "https://api.openweathermap.org/data/2.5/weather?q=$city&appid=${utils.appId}&units=metric";
 
-    // Http get function, note the await before the http.get
-    // Also note: I chain the results here, get(url) returns a response
-    //            that is passed to 'then' statement (which gets executed only
-    //            if there is a response objects), I then return response.body
-    //            or throw an error depending on the response's status code
-    //            that is then passed along to the next 'then' statement where
-    //            I decode the body. This final decoded body is then passed
-    //            as a return value to this function
-
-    // Also Note: decode the json from the response body and return as a
-    //            list of dict's, i.e. [{...}, {...}, ...]
+    // Note: I chain the results here, get(url) returns a response
+    //       that is passed to 'then' statement (which gets executed only
+    //       if there is a response objects), I then return response.body
+    //       or throw an error depending on the response's status code
+    //       that is then passed along to the next 'then' statement where
+    //       I decode the body. This final decoded body is then passed
+    //       as a return value to this function
 
     // Also Note: I set the value of data inside setState that's again inside
     //            of 'then' statement. This is how you use steState inside async
     //            functions. If you call setState outside then the async function
     //            might update an incorrect value since the async function escapes
     //            and computes a new value, hence - always use setState inside the
-    //            'then' statement. In a way 'then' statements acts as completion handlers
+    //            'then' statement. In a way 'then' statements acts as completion
+    //            handlers
 
+    // IMP: Calling setState inside the Future func is causing the scaffold
+    //      widget to redraw and call FutureBuilder again which in turn is
+    //      calling this function again, causing an infinite loop. So, I've
+    //      commented it out
+
+    var data;
+
+    // Http get function, note the await before the http.get
     Future<Map> result = await http.get(url).then((response) {
       return response.statusCode == 200
           ? response.body
           : throw 'Error when getting data';
     }).then((body) {
-      setState(() {
-        // We update the value of data inside setState, which will update the
-        // each of the values of ListTile inside the ListView.builder in the body
-        // section
-        var data = json.decode(body);
-        temperature = data["main"]["temp_max"];
-        return data;
-      });
+      // This is the data I am returning to the futureBuilder
+      data = json.decode(body);
+
+      // We can also call setState inside the 'then' statements
+
+      //  setState(() {
+      //    // We update the value of data inside setState, which will update the
+      //    // each of the values of ListTile inside the ListView.builder in the body
+      //    // section
+      //    temperature = data["main"]["temp_max"];
+      //  });
     });
 
-    return result;
+    return data;
+  }
+
+  // This is a function that builds a future widget which like any
+  // other widget can be used anywhere (child, children etc)
+
+  // The two important keys in the FutureBuilder are builder and
+  // future. The builder is where you actually build the widget using
+  // the inputs provided by the future function, AsyncSnapshot holds
+  // the result which we can use. The future key expects a future
+  // async function (getWeather in this case), so the FutureBuilder
+  // waits for the async future function to compute and return data
+  // which it uses to build the widget
+  Widget futureWidget(String city) {
+    return FutureBuilder(
+      builder: (BuildContext context, AsyncSnapshot<Map> snapshot) {
+        // return widget according to the data provided
+        if (snapshot.hasData) {
+          Map data = snapshot.data;
+          return new Container(
+            child: new Column(
+              children: <Widget>[
+                new ListTile(
+                  title: new Text(
+                    "${data["main"]["temp_max"].toString()} C",
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontStyle: FontStyle.normal,
+                        fontSize: 50.0,
+                        fontWeight: FontWeight.w500),
+                  ),
+                )
+              ],
+            ),
+          );
+        } else {
+          // returns a CircularProgressIndicator if snapshot has no data
+          return new CircularProgressIndicator();
+        }
+      },
+      future: getWeather(city),
+    );
   }
 
   // Here is set all initial states, I also call on the async getWeather
   // function here to set the temperature in the beginning
-  @override
-  void initState() {
-    // This is the proper place to make the async calls
-    // This way they only get called once
 
-    // During development, if you change this code,
-    // you will need to do a full restart instead of just a hot reload
-
-    // You can't use async/await here,
-    // We can't mark this method as async because of the @override
-    getWeather("Delhi").then((result) {
-      // If we need to rebuild the widget with the resulting data,
-      // make sure to use `setState`
-      if (result != null) {
-        setState(() {
-          temperature = result["main"]["temp_max"];
-        });
-      }
-    });
-  }
+  //  @override
+  //  void initState() {
+  //    // This is the proper place to make the async calls
+  //    // This way they only get called once
+  //
+  //    // During development, if you change this code,
+  //    // you will need to do a full restart instead of just a hot reload
+  //
+  //    // You can't use async/await here,
+  //    // We can't mark this method as async because of the @override
+  //    getWeather("Delhi").then((result) {
+  //      // If we need to rebuild the widget with the resulting data,
+  //      // make sure to use `setState`
+  //      if (result != null) {
+  //        setState(() {
+  //          temperature = result["main"]["temp_max"];
+  //        });
+  //      }
+  //    });
+  //  }
 
   Scaffold createScafflod() {
     /*
@@ -169,19 +219,14 @@ class CustomState extends State<WeatherHome> {
           // This time I set top and right margins to align the
           // text slightly below the center and slightly to the
           // left
+
+          // Also Note: The child of the container returns a future
+          // widget, that builds a widget using the data returned
+          // from async function calls
           new Container(
             alignment: Alignment.center,
-            margin: const EdgeInsets.fromLTRB(0, 200.0, 75.0, 0),
-            child: temperature == null
-                ? new Text("")
-                : new Text(
-                    "$temperature C",
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontStyle: FontStyle.normal,
-                        fontSize: 50.0,
-                        fontWeight: FontWeight.w500),
-                  ),
+            margin: const EdgeInsets.fromLTRB(55.0, 375.0, 0, 0),
+            child: futureWidget("Chicago"),
           )
         ],
       ),
