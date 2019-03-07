@@ -1,4 +1,9 @@
+import 'dart:async';
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_app/utils/utils.dart' as utils;
+import 'package:http/http.dart' as http;
 
 // Create a custom stateful widget
 class WeatherHome extends StatefulWidget {
@@ -18,8 +23,78 @@ class WeatherHome extends StatefulWidget {
 // Note: how it extends State and its of type <CustomStatefulWidget>
 class CustomState extends State<WeatherHome> {
   String title;
+  var temperature;
 
   CustomState({this.title});
+
+  // Async request call to fetch the posts from a given url
+  // Note: This function returns a Future<List> which gets
+  //       converted to List if this function is called by
+  //       another async function
+  Future<Map> getWeather(String city) async {
+    // The url to hit
+    String url =
+        "https://api.openweathermap.org/data/2.5/weather?q=$city&appid=${utils.appId}&units=metric";
+
+    // Http get function, note the await before the http.get
+    // Also note: I chain the results here, get(url) returns a response
+    //            that is passed to 'then' statement (which gets executed only
+    //            if there is a response objects), I then return response.body
+    //            or throw an error depending on the response's status code
+    //            that is then passed along to the next 'then' statement where
+    //            I decode the body. This final decoded body is then passed
+    //            as a return value to this function
+
+    // Also Note: decode the json from the response body and return as a
+    //            list of dict's, i.e. [{...}, {...}, ...]
+
+    // Also Note: I set the value of data inside setState that's again inside
+    //            of 'then' statement. This is how you use steState inside async
+    //            functions. If you call setState outside then the async function
+    //            might update an incorrect value since the async function escapes
+    //            and computes a new value, hence - always use setState inside the
+    //            'then' statement. In a way 'then' statements acts as completion handlers
+
+    Future<Map> result = await http.get(url).then((response) {
+      return response.statusCode == 200
+          ? response.body
+          : throw 'Error when getting data';
+    }).then((body) {
+      setState(() {
+        // We update the value of data inside setState, which will update the
+        // each of the values of ListTile inside the ListView.builder in the body
+        // section
+        var data = json.decode(body);
+        temperature = data["main"]["temp_max"];
+        return data;
+      });
+    });
+
+    return result;
+  }
+
+  // Here is set all initial states, I also call on the async getWeather
+  // function here to set the temperature in the beginning
+  @override
+  void initState() {
+    // This is the proper place to make the async calls
+    // This way they only get called once
+
+    // During development, if you change this code,
+    // you will need to do a full restart instead of just a hot reload
+
+    // You can't use async/await here,
+    // We can't mark this method as async because of the @override
+    getWeather("Delhi").then((result) {
+      // If we need to rebuild the widget with the resulting data,
+      // make sure to use `setState`
+      if (result != null) {
+        setState(() {
+          temperature = result["main"]["temp_max"];
+        });
+      }
+    });
+  }
 
   Scaffold createScafflod() {
     /*
@@ -34,25 +109,86 @@ class CustomState extends State<WeatherHome> {
     return new Scaffold(
       // Creates and sets params for AppBar
       appBar: new AppBar(
-          backgroundColor: Colors.deepOrange.shade700,
-          title: new Text(this.title),
+          backgroundColor: Colors.white,
+          title: new Text(
+            this.title,
+            style: new TextStyle(color: Colors.black),
+          ),
           centerTitle: true,
           // The action widgets are the right icons in the appBar
           actions: <Widget>[
             new IconButton(
-                icon: new Icon(Icons.send),
-                onPressed: () => debugPrint("Send icon Tapped!")),
-            new IconButton(
-                icon: new Icon(Icons.search),
-                onPressed: () => debugPrint("Send icon Tapped!")),
+                icon: new Icon(Icons.menu),
+                color: Colors.grey,
+                onPressed: () => debugPrint("Menu Tapped!")),
           ]),
 
       // Creates and sets params for body of scaffold
-      body: new Container(),
+
+      // Since we are going to stack widgets one on top of the
+      // other we can use stack widget which will allow
+      // all its children (widgets) inside it to be
+      // stacked on top of each other
+
+      body: new Stack(
+        children: <Widget>[
+          // background image, specify height & width and also
+          // specify that the fit is BoxFit.fill
+          new Center(
+            child: new Image.asset(
+              "images/umbrella.png",
+              width: 490.0,
+              height: 1200.0,
+              fit: BoxFit.fill,
+            ),
+          ),
+
+          // Create a text at the top right corner of the screen
+          new Container(
+            alignment: Alignment.topRight,
+            // This margin/padding is important to align it in the right
+            // corner
+            margin: const EdgeInsets.fromLTRB(0.0, 11.0, 21.0, 0.0),
+            child: new Text(
+              "Current Weather",
+              style: new TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                  fontStyle: FontStyle.italic,
+                  fontSize: 22.0),
+            ),
+          ),
+
+          // Center image
+          new Container(
+            alignment: Alignment.center,
+            child: new Image.asset("images/light_rain.png"),
+          ),
+
+          // Another text field, pay attention to the edge insets
+          // This time I set top and right margins to align the
+          // text slightly below the center and slightly to the
+          // left
+          new Container(
+            alignment: Alignment.center,
+            margin: const EdgeInsets.fromLTRB(0, 200.0, 75.0, 0),
+            child: temperature == null
+                ? new Text("")
+                : new Text(
+                    "$temperature C",
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontStyle: FontStyle.normal,
+                        fontSize: 50.0,
+                        fontWeight: FontWeight.w500),
+                  ),
+          )
+        ],
+      ),
 
       // Creates and sets params for floatingActionButton
       floatingActionButton: new FloatingActionButton(
-        onPressed: () => debugPrint("Floating Button Touched"),
+        onPressed: () => getWeather("Toronto"),
         backgroundColor: Colors.pink,
         // tooltip describes what the button does when its long pressed
         tooltip: 'prints button pressed',
