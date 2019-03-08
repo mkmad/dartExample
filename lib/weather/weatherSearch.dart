@@ -5,30 +5,49 @@ import 'package:flutter/material.dart';
 import 'package:flutter_app/utils/utils.dart' as utils;
 import 'package:http/http.dart' as http;
 
-import 'weatherSearch.dart';
+import 'weatherHome.dart';
 
 // Create a custom stateful widget
-class WeatherHome extends StatefulWidget {
+class WeatherSearch extends StatefulWidget {
   String title;
-  String city;
 
-  WeatherHome({Key key, this.title, this.city}) : super(key: key);
+  WeatherSearch({Key key, this.title}) : super(key: key);
 
-  // It is necessary to create states of every
-  // stateful widget
   @override
-  State<StatefulWidget> createState() {
-    return new CustomState(title: this.title, city: this.city);
-  }
+  CustomState createState() => new CustomState(title: title);
 }
 
 // This class creates a state for the CustomStatefulWidget
 // Note: how it extends State and its of type <CustomStatefulWidget>
-class CustomState extends State<WeatherHome> {
+class CustomState extends State<WeatherSearch> {
   String title;
-  String city;
 
-  CustomState({this.title, this.city});
+  // controller for search field
+  final TextEditingController _searchController = new TextEditingController();
+
+  // constructor
+  CustomState({this.title});
+
+  // clearing the text fields using setState
+  void _clearFields() {
+    setState(() {
+      _searchController.clear();
+    });
+  }
+
+  // This function moves to the screen provided below
+  void moveToNextScreen(String city) {
+    var router = new MaterialPageRoute(builder: (BuildContext context) {
+      return new WeatherHome(
+        title: this.title,
+        city: city,
+      );
+    });
+
+    // Use Navigator and to push using the router that's
+    // created
+    Navigator.of(context).push(router);
+  }
 
   // Async request call to fetch the posts from a given url
   // Note: This function returns a Future<List> which gets
@@ -95,7 +114,6 @@ class CustomState extends State<WeatherHome> {
   // waits for the async future function to compute and return data
   // which it uses to build the widget
   Widget futureWidget(String city) {
-    debugPrint("Fetching weather for $city");
     return FutureBuilder(
       builder: (BuildContext context, AsyncSnapshot<Map> snapshot) {
         // return widget according to the data provided
@@ -126,17 +144,6 @@ class CustomState extends State<WeatherHome> {
     );
   }
 
-  // This function moves to the screen provided below
-  void moveToNextScreen() {
-    var router = new MaterialPageRoute(builder: (BuildContext context) {
-      return new WeatherSearch(
-        title: this.title,
-      );
-    });
-
-    Navigator.of(context).push(router);
-  }
-
   Scaffold createScafflod() {
     /*
       Scaffold has many in-built widgets like AppBar,
@@ -151,6 +158,7 @@ class CustomState extends State<WeatherHome> {
       // Creates and sets params for AppBar
       appBar: new AppBar(
           backgroundColor: Colors.white,
+          leading: BackButton(color: Colors.black),
           title: new Text(
             this.title,
             style: new TextStyle(color: Colors.black),
@@ -165,64 +173,29 @@ class CustomState extends State<WeatherHome> {
           ]),
 
       // Creates and sets params for body of scaffold
-
-      // Since we are going to stack widgets one on top of the
-      // other we can use stack widget which will allow
-      // all its children (widgets) inside it to be
-      // stacked on top of each other
-
-      body: new Stack(children: <Widget>[
-        // background image, specify height & width and also
-        // specify that the fit is BoxFit.fill
-        new Center(
-          child: new Image.asset(
-            "images/umbrella.png",
-            width: 490.0,
-            height: 1200.0,
-            fit: BoxFit.fill,
-          ),
+      // Note: The raised button will call moveToNextScreen
+      //       with the text that's entered by the user
+      body: new Container(
+        alignment: Alignment.topCenter,
+        child: new Column(
+          children: <Widget>[
+            new TextField(
+              obscureText: false,
+              controller: _searchController,
+              decoration: new InputDecoration(
+                  hintText: "search city", icon: new Icon(Icons.map)),
+            ),
+            new RaisedButton(onPressed: () {
+              moveToNextScreen(_searchController.text);
+              _clearFields();
+            }),
+          ],
         ),
-
-        // Create a text at the top right corner of the screen
-        new Container(
-          alignment: Alignment.topRight,
-          // This margin/padding is important to align it in the right
-          // corner
-          margin: const EdgeInsets.fromLTRB(0.0, 11.0, 21.0, 0.0),
-          child: new Text(
-            "Current Weather",
-            style: new TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-                fontStyle: FontStyle.italic,
-                fontSize: 22.0),
-          ),
-        ),
-
-        // Center image
-        new Container(
-          alignment: Alignment.center,
-          child: new Image.asset("images/light_rain.png"),
-        ),
-
-        // Another text field, pay attention to the edge insets
-        // This time I set top and right margins to align the
-        // text slightly below the center and slightly to the
-        // left
-
-        // Also Note: The child of the container returns a future
-        // widget, that builds a widget using the data returned
-        // from async function calls
-        new Container(
-          alignment: Alignment.center,
-          margin: const EdgeInsets.fromLTRB(55.0, 375.0, 0, 0),
-          child: futureWidget(this.city),
-        ),
-      ]),
+      ),
 
       // Creates and sets params for floatingActionButton
       floatingActionButton: new FloatingActionButton(
-        onPressed: moveToNextScreen,
+        onPressed: () => moveToNextScreen,
         backgroundColor: Colors.red,
         // tooltip describes what the button does when its long pressed
         tooltip: 'prints button pressed',
@@ -253,7 +226,12 @@ class CustomState extends State<WeatherHome> {
         ],
 
         // action handler for item pressed (note: its index based)
-        onTap: (int i) => debugPrint("Hey Touched $i"),
+        onTap: (int index) {
+          switch (index) {
+            default:
+              debugPrint("$index button pressed");
+          }
+        },
       ),
     );
   }

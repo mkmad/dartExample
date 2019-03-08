@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'weather/weatherHome.dart';
+import 'weather/weatherSearch.dart';
 
 void main() {
   var title = "Scaffold example";
@@ -20,8 +20,8 @@ void main() {
     //  title: "Requests Example",
     //),
 
-    home: new WeatherHome(
-      title: "Weather Home",
+    home: new WeatherSearch(
+      title: "Weather Search",
     ),
   ));
 }
