@@ -36,8 +36,8 @@ class CustomState extends State<WeatherSearch> {
   }
 
   // This function moves to the screen provided below
-  void moveToNextScreen(String city) {
-    var router = new MaterialPageRoute(builder: (BuildContext context) {
+  Future moveToNextScreen(String city) async {
+    var router = new MaterialPageRoute<Map>(builder: (BuildContext context) {
       return new WeatherHome(
         title: this.title,
         city: city,
@@ -46,102 +46,8 @@ class CustomState extends State<WeatherSearch> {
 
     // Use Navigator and to push using the router that's
     // created
-    Navigator.of(context).push(router);
-  }
-
-  // Async request call to fetch the posts from a given url
-  // Note: This function returns a Future<List> which gets
-  //       converted to List if this function is called by
-  //       another async function
-  Future<Map> getWeather(String city) async {
-    // The url to hit
-    String url =
-        "https://api.openweathermap.org/data/2.5/weather?q=$city&appid=${utils.appId}&units=metric";
-
-    // Note: I chain the results here, get(url) returns a response
-    //       that is passed to 'then' statement (which gets executed only
-    //       if there is a response objects), I then return response.body
-    //       or throw an error depending on the response's status code
-    //       that is then passed along to the next 'then' statement where
-    //       I decode the body. This final decoded body is then passed
-    //       as a return value to this function
-
-    // Also Note: I set the value of data inside setState that's again inside
-    //            of 'then' statement. This is how you use steState inside async
-    //            functions. If you call setState outside then the async function
-    //            might update an incorrect value since the async function escapes
-    //            and computes a new value, hence - always use setState inside the
-    //            'then' statement. In a way 'then' statements acts as completion
-    //            handlers
-
-    // IMP: Calling setState inside the Future func is causing the scaffold
-    //      widget to redraw and call FutureBuilder again which in turn is
-    //      calling this function again, causing an infinite loop. So, I've
-    //      commented it out
-
-    var data;
-
-    // Http get function, note the await before the http.get
-    Future<Map> result = await http.get(url).then((response) {
-      return response.statusCode == 200
-          ? response.body
-          : throw 'Error when getting data';
-    }).then((body) {
-      // This is the data I am returning to the futureBuilder
-      data = json.decode(body);
-
-      // We can also call setState inside the 'then' statements
-
-      //  setState(() {
-      //    // We update the value of data inside setState, which will update the
-      //    // each of the values of ListTile inside the ListView.builder in the body
-      //    // section
-      //    temperature = data["main"]["temp_max"];
-      //  });
-    });
-
-    return data;
-  }
-
-  // This is a function that builds a future widget which like any
-  // other widget can be used anywhere (child, children etc)
-
-  // The two important keys in the FutureBuilder are builder and
-  // future. The builder is where you actually build the widget using
-  // the inputs provided by the future function, AsyncSnapshot holds
-  // the result which we can use. The future key expects a future
-  // async function (getWeather in this case), so the FutureBuilder
-  // waits for the async future function to compute and return data
-  // which it uses to build the widget
-  Widget futureWidget(String city) {
-    return FutureBuilder(
-      builder: (BuildContext context, AsyncSnapshot<Map> snapshot) {
-        // return widget according to the data provided
-        if (snapshot.hasData) {
-          Map data = snapshot.data;
-          return new Container(
-            child: new Column(
-              children: <Widget>[
-                new ListTile(
-                  title: new Text(
-                    "${data["main"]["temp_max"].toString()} °C",
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontStyle: FontStyle.normal,
-                        fontSize: 40.0,
-                        fontWeight: FontWeight.w500),
-                  ),
-                )
-              ],
-            ),
-          );
-        } else {
-          // returns a CircularProgressIndicator if snapshot has no data
-          return new CircularProgressIndicator();
-        }
-      },
-      future: getWeather(city),
-    );
+    Map results = await Navigator.of(context).push(router);
+    debugPrint(results.toString());
   }
 
   Scaffold createScafflod() {
@@ -177,18 +83,31 @@ class CustomState extends State<WeatherSearch> {
       //       with the text that's entered by the user
       body: new Container(
         alignment: Alignment.topCenter,
-        child: new Column(
+        child: new Stack(
           children: <Widget>[
-            new TextField(
-              obscureText: false,
-              controller: _searchController,
-              decoration: new InputDecoration(
-                  hintText: "search city", icon: new Icon(Icons.map)),
+            new Center(
+              child: new Image.asset(
+                "images/white_snow.png",
+                fit: BoxFit.fill,
+              ),
             ),
-            new RaisedButton(onPressed: () {
-              moveToNextScreen(_searchController.text);
-              _clearFields();
-            }),
+            new ListView(
+              children: <Widget>[
+                new TextField(
+                  obscureText: false,
+                  controller: _searchController,
+                  decoration: new InputDecoration(
+                      hintText: "search city", icon: new Icon(Icons.map)),
+                ),
+                new FlatButton(
+                    textColor: Colors.black,
+                    child: new Text("Get Weather"),
+                    onPressed: () {
+                      moveToNextScreen(_searchController.text);
+                      _clearFields();
+                    }),
+              ],
+            )
           ],
         ),
       ),

@@ -95,7 +95,6 @@ class CustomState extends State<WeatherHome> {
   // waits for the async future function to compute and return data
   // which it uses to build the widget
   Widget futureWidget(String city) {
-    debugPrint("Fetching weather for $city");
     return FutureBuilder(
       builder: (BuildContext context, AsyncSnapshot<Map> snapshot) {
         // return widget according to the data provided
@@ -103,23 +102,35 @@ class CustomState extends State<WeatherHome> {
           Map data = snapshot.data;
           return new Container(
             child: new Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 new ListTile(
                   title: new Text(
-                    "${data["main"]["temp_max"].toString()} °C",
+                    "${data["main"]["temp"].toString()} °C",
                     style: TextStyle(
                         color: Colors.white,
                         fontStyle: FontStyle.normal,
                         fontSize: 40.0,
                         fontWeight: FontWeight.w500),
                   ),
-                )
+                ),
+                new ListTile(
+                  title: new Text(
+                    "Humidity: ${data["main"]["humidity"].toString()}\n"
+                        "Min: ${data["main"]["temp_min"].toString()} °C\n"
+                        "Max: ${data["main"]["temp_max"].toString()} °C",
+                    style: new TextStyle(
+                        color: Colors.white,
+                        fontSize: 15.0,
+                        fontWeight: FontWeight.w100),
+                  ),
+                ),
               ],
             ),
           );
         } else {
           // returns a CircularProgressIndicator if snapshot has no data
-          return new CircularProgressIndicator();
+          return new Container();
         }
       },
       future: getWeather(city),
@@ -127,14 +138,17 @@ class CustomState extends State<WeatherHome> {
   }
 
   // This function moves to the screen provided below
-  void moveToNextScreen() {
-    var router = new MaterialPageRoute(builder: (BuildContext context) {
+  Future moveToNextScreen() async {
+    var router = new MaterialPageRoute<Map>(builder: (BuildContext context) {
       return new WeatherSearch(
         title: this.title,
       );
     });
 
-    Navigator.of(context).push(router);
+    // Use Navigator and to push using the router that's
+    // created
+    Map results = await Navigator.of(context).push(router);
+    debugPrint(results.toString());
   }
 
   Scaffold createScafflod() {
@@ -215,7 +229,7 @@ class CustomState extends State<WeatherHome> {
         // from async function calls
         new Container(
           alignment: Alignment.center,
-          margin: const EdgeInsets.fromLTRB(55.0, 375.0, 0, 0),
+          margin: const EdgeInsets.fromLTRB(55.0, 225.0, 0, 0),
           child: futureWidget(this.city),
         ),
       ]),

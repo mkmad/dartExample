@@ -1,4 +1,4 @@
-#Mon Mar 04 22:03:41 PST 2019
+#Thu Mar 07 23:00:51 PST 2019
 base.0=/Users/mkmad/projects/flutter/dartExample/build/app/intermediates/transforms/dexMerger/debug/0
 path.0=classes.dex
 renamed.0=classes.dex
