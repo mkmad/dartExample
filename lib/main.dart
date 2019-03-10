@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 
 import 'weather/weatherSearch.dart';
+import 'persistantStorage/asText.dart';
+
+import 'persistantStorage/sharedPreferences.dart';
 
 void main() {
   var title = "Scaffold example";
@@ -20,8 +23,13 @@ void main() {
     //  title: "Requests Example",
     //),
 
-    home: new WeatherSearch(
-      title: "Weather Search",
-    ),
+//    home: new WeatherSearch(
+//      title: "Weather Search",
+//    ),
+
+//      home: new TextStorageWidget(
+//    title: "Text Storage",)
+
+    home: new SharedPreferencesStorageWidget(title: "NoSql Storage"),
   ));
 }
