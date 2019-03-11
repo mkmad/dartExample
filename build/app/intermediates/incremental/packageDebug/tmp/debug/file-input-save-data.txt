@@ -1,5 +1,5 @@
 #Internal package file, do not edit.
-#Thu Mar 07 23:00:51 PST 2019
+#Fri Mar 08 20:30:37 PST 2019
 4.path=flutter_assets/isolate_snapshot_data
 13.baseType=DIRECTORY
 8.set=ASSET
