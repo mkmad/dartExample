@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
-
-import 'weather/weatherSearch.dart';
-import 'persistantStorage/asText.dart';
-
-import 'persistantStorage/sharedPreferences.dart';
+import 'package:flutter_app/Todo/todo.dart';
 
 void main() {
   var title = "Scaffold example";
@@ -30,6 +26,7 @@ void main() {
 //      home: new TextStorageWidget(
 //    title: "Text Storage",)
 
-    home: new SharedPreferencesStorageWidget(title: "NoSql Storage"),
+    //home: new SharedPreferencesStorageWidget(title: "NoSql Storage"),
+    home: new TodoApp(title: "FQLite storage"),
   ));
 }
