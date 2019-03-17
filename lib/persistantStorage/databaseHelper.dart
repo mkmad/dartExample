@@ -9,9 +9,10 @@ import 'package:sqflite/sqflite.dart';
 class DatabaseHelper {
   // table info
   final String table = "dbTable";
-  final String columnId = "dbColumnID";
-  final String user = "dbUser";
-  final String password = "dbPassword";
+  // Note: id has to be declared as _id in order to be auto incremented
+  final String columnId = "_id";
+  final String user = "username";
+  final String password = "password";
 
   // Internal constructor (this is required since this class is going
   // to be a singleton)
@@ -56,6 +57,7 @@ class DatabaseHelper {
         "$password text)";
 
     // execute the sql statement
+    print(sql);
     await db.execute(sql);
   }
 

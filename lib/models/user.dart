@@ -4,6 +4,7 @@ class User {
   // class vars
   String _username;
   String _password;
+  // Note: id has to be declared as _id in order to be auto incremented
   int _id;
 
   // getters
@@ -12,7 +13,10 @@ class User {
   int get id => this._id;
 
   // Named constructor
-  User(this._username, this._password);
+  User(
+    this._username,
+    this._password,
+  );
 
   // helper function to instantiate the class vars
   // from an object
@@ -33,7 +37,8 @@ class User {
 
     map["username"] = this._username;
     map["password"] = this._password;
-    map["id"] = this._id == null ? "" : this._id;
+    // Note: id has to be declared as _id in order to be auto incremented
+    map["_id"] = this._id;
 
     return map;
   }

@@ -94,8 +94,8 @@ class CustomState extends State<TodoApp> {
             elevation: 1.5,
             child: new Container(
               child: new ListTile(
-                title: databaseItems[index].username,
-                subtitle: databaseItems[index].password,
+                title: new Text(databaseItems[index]["username"]),
+                subtitle: new Text(databaseItems[index]["password"]),
                 leading: new CircleAvatar(
                   child: new Text(">"),
                   radius: 5.0,

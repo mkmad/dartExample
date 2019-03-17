@@ -40,7 +40,7 @@ class CustomState extends State<AddUsers> {
     String _username = _usernameController.text;
     String _password = _passwordController.text;
     dbHelper.insertUser(users.User(_username, _password));
-    dbHelper.close();
+    //dbHelper.close();
   }
 
   // This function moves to the screen provided below
