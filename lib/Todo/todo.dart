@@ -47,6 +47,16 @@ class CustomState extends State<TodoApp> {
     dbHelper.close();
   }
 
+  // delete an item form the database and call _fetchValue to
+  // setState and refresh the view
+  void _deleteItem(int id, int index) async {
+    var dbHelper = new database.DatabaseHelper.internal();
+    await dbHelper.deleteUser(id).then((result) {
+      _fetchValue();
+    });
+    dbHelper.close();
+  }
+
   // This function moves to the screen provided below
   Future<void> _moveToNextScreen() async {
     var router = new MaterialPageRoute<Map>(builder: (BuildContext context) {
@@ -99,6 +109,16 @@ class CustomState extends State<TodoApp> {
                 leading: new CircleAvatar(
                   child: new Text(">"),
                   radius: 5.0,
+                ),
+                // Note: The tailing icon is now a listener
+                trailing: new Listener(
+                  key: new Key(databaseItems[index]["username"]),
+                  child: new Icon(
+                    Icons.remove_circle,
+                    color: Colors.redAccent,
+                  ),
+                  onPointerDown: (pointerEvent) =>
+                      {_deleteItem(databaseItems[index]["_id"], index)},
                 ),
               ),
             ),
