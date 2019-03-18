@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_app/Todo/todo.dart' as todo;
 import 'package:flutter_app/models/user.dart' as users;
-import 'package:flutter_app/persistantStorage/databaseHelper.dart' as database;
+import 'package:flutter_app/persistantStorage/sqFlite.dart' as database;
 
 // Create a custom stateful widget
 class AddUsers extends StatefulWidget {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_app/Todo/todo.dart';
+
+import "persistantStorage/firestoreDB.dart";
 
 void main() {
   var title = "Scaffold example";
@@ -27,6 +28,6 @@ void main() {
 //    title: "Text Storage",)
 
     //home: new SharedPreferencesStorageWidget(title: "NoSql Storage"),
-    home: new TodoApp(title: "FQLite storage"),
+    home: new FireStoreDB(title: "FireStore storage"),
   ));
 }
