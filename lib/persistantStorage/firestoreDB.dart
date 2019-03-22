@@ -37,6 +37,42 @@ class CustomState extends State<FireStoreDB> {
     _fetchValues();
   }
 
+  Widget _firebaseAnimatedListBuilder() {}
+
+  // create a listview builder that's used to show
+  // the items from firestore
+  Widget _listviewBuilder() {
+    return new ListView.builder(
+      itemBuilder: (BuildContext context, int index) {
+        return new Card(
+          color: Colors.white,
+          elevation: 1.5,
+          child: new Container(
+            child: new ListTile(
+              title: new Text(databaseItems[index]["title"]),
+              subtitle: new Text(databaseItems[index]["author"]),
+              leading: new CircleAvatar(
+                child: new Text(">"),
+                radius: 5.0,
+              ),
+              // Note: The tailing icon is now a listener
+              trailing: new Listener(
+                key: new Key(databaseItems[index]["title"]),
+                child: new Icon(
+                  Icons.remove_circle,
+                  color: Colors.redAccent,
+                ),
+                onPointerDown: (pointerEvent) =>
+                    {_deleteValue(collection, index)},
+              ),
+            ),
+          ),
+        );
+      },
+      itemCount: databaseItems == null ? 0 : databaseItems.length,
+    );
+  }
+
   // return a firestore stream builder
   Widget _firestoreStreamBuilder() {
     return StreamBuilder<QuerySnapshot>(
@@ -146,35 +182,7 @@ class CustomState extends State<FireStoreDB> {
                 onPressed: () => debugPrint("Send icon Tapped!")),
           ]),
 
-      body: new ListView.builder(
-        itemBuilder: (BuildContext context, int index) {
-          return new Card(
-            color: Colors.white,
-            elevation: 1.5,
-            child: new Container(
-              child: new ListTile(
-                title: new Text(databaseItems[index]["title"]),
-                subtitle: new Text(databaseItems[index]["author"]),
-                leading: new CircleAvatar(
-                  child: new Text(">"),
-                  radius: 5.0,
-                ),
-                // Note: The tailing icon is now a listener
-                trailing: new Listener(
-                  key: new Key(databaseItems[index]["title"]),
-                  child: new Icon(
-                    Icons.remove_circle,
-                    color: Colors.redAccent,
-                  ),
-                  onPointerDown: (pointerEvent) =>
-                      {_deleteValue(collection, index)},
-                ),
-              ),
-            ),
-          );
-        },
-        itemCount: databaseItems == null ? 0 : databaseItems.length,
-      ),
+      body: _listviewBuilder(),
 
       // body: _firestoreStreamBuilder(),
 

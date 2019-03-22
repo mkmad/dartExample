@@ -2,6 +2,7 @@ cloud_firestore=/Users/mohan/projects/flutter/.pub-cache/hosted/pub.dartlang.org
 firebase_auth=/Users/mohan/projects/flutter/.pub-cache/hosted/pub.dartlang.org/firebase_auth-0.8.1+4/
 firebase_core=/Users/mohan/projects/flutter/.pub-cache/hosted/pub.dartlang.org/firebase_core-0.3.1+1/
 firebase_database=/Users/mohan/projects/flutter/.pub-cache/hosted/pub.dartlang.org/firebase_database-2.0.2/
+google_sign_in=/Users/mohan/projects/flutter/.pub-cache/hosted/pub.dartlang.org/google_sign_in-4.0.1+1/
 path_provider=/Users/mohan/projects/flutter/.pub-cache/hosted/pub.dartlang.org/path_provider-0.5.0+1/
 shared_preferences=/Users/mohan/projects/flutter/.pub-cache/hosted/pub.dartlang.org/shared_preferences-0.5.1+1/
 sqflite=/Users/mohan/projects/flutter/.pub-cache/hosted/pub.dartlang.org/sqflite-1.1.3/

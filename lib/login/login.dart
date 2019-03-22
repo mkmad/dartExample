@@ -1,4 +1,10 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+
+// Firebase auth and google sign in
+final FirebaseAuth _auth = FirebaseAuth.instance;
+final GoogleSignIn _googleSignIn = new GoogleSignIn();
 
 class Login extends StatefulWidget {
   // Login constructor
@@ -21,6 +27,20 @@ class LoginState extends State<Login> {
   // This var keeps track of the radio button's state
   int radioGroupVal = 0;
 
+  GoogleSignInAccount _currentUser;
+  String _contactText;
+
+//  @override
+//  void initState() {
+//    super.initState();
+//    _googleSignIn.onCurrentUserChanged.listen((GoogleSignInAccount account) {
+//      setState(() {
+//        this._currentUser = account;
+//      });
+//    });
+//    _googleSignIn.signInSilently();
+//  }
+
   // radio button handler that changes the states of the buttons
   void radioHandler(int value) {
     setState(() {
@@ -31,9 +51,51 @@ class LoginState extends State<Login> {
   // clearing the text fields using setState
   void _clearFields() {
     setState(() {
-      _userController.clear();
-      _passwordController.clear();
+      this._userController.clear();
+      this._passwordController.clear();
     });
+  }
+
+  // handle google login
+  Future<FirebaseUser> _handleLoginGoogle() async {
+    try {
+      // SignInAccount
+      _currentUser = await _googleSignIn.signIn();
+
+      // SignInAuthentication
+      GoogleSignInAuthentication _googleSignInAuthentication =
+          await _currentUser.authentication;
+
+      // AuthCredential
+      final AuthCredential credential = GoogleAuthProvider.getCredential(
+        accessToken: _googleSignInAuthentication.accessToken,
+        idToken: _googleSignInAuthentication.idToken,
+      );
+
+      // firebase user
+      final FirebaseUser user = await _auth.signInWithCredential(credential);
+
+      assert(user.email != null);
+      assert(user.displayName != null);
+      assert(!user.isAnonymous);
+      assert(await user.getIdToken() != null);
+
+      // check if its the current user
+      final FirebaseUser currentUser = await _auth.currentUser();
+      assert(user.uid == currentUser.uid);
+
+      return user;
+    } catch (error) {
+      print(error);
+    }
+  }
+
+  // handle email login
+  void _handleLoginEmail() async {}
+
+  // handle sign out
+  Future<void> _handleSignOut() async {
+    _googleSignIn.disconnect();
   }
 
   // create a scaffold
@@ -107,30 +169,45 @@ class LoginState extends State<Login> {
                 new Container(
                   padding: new EdgeInsets.only(left: 40),
                   child: new RaisedButton(
-                    onPressed: () => debugPrint("login pressed"),
+                    onPressed: _handleLoginGoogle,
                     color: Colors.redAccent,
                     child: new Text(
-                      "Login",
+                      "Google Login",
                       style: new TextStyle(color: Colors.white, fontSize: 17.0),
                     ),
                   ),
                 ),
-
-                // Note: The padding for this button is 160 px from the left
                 new Container(
-                  padding: new EdgeInsets.only(left: 160),
+                  padding: new EdgeInsets.only(left: 40),
                   child: new RaisedButton(
-                    // The onPressed here clears both the input fields
-                    // using both the text field controllers
-                    onPressed: _clearFields,
+                    onPressed: _handleLoginEmail,
                     color: Colors.redAccent,
                     child: new Text(
-                      "Clear",
+                      "Login with email",
                       style: new TextStyle(color: Colors.white, fontSize: 17.0),
                     ),
                   ),
-                )
+                ),
               ],
+            ),
+
+            new Center(
+              child: new Row(
+                children: <Widget>[
+                  new Container(
+                    padding: new EdgeInsets.only(left: 40),
+                    child: new RaisedButton(
+                      onPressed: _handleSignOut,
+                      color: Colors.redAccent,
+                      child: new Text(
+                        "Sign out",
+                        style:
+                            new TextStyle(color: Colors.white, fontSize: 17.0),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
 
             // Row for radio buttons

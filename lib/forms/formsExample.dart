@@ -26,7 +26,7 @@ class CustomFormState extends State<CustomForm> {
   CustomFormState({this.title});
 
   // build the forms for the scaffold body
-  Widget buildForms(BuildContext context) {
+  Widget buildForms() {
     return Form(
       key: _formKey,
       child: Column(
@@ -47,21 +47,26 @@ class CustomFormState extends State<CustomForm> {
                   onSaved: (value) => debugPrint("Form field saved"),
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 16.0),
-                child: RaisedButton(
-                  onPressed: () {
-                    // Validate will return true if the form is valid, or false if
-                    // the form is invalid.
-                    if (_formKey.currentState.validate()) {
-                      // If the form is valid, we want to show a Snackbar
-                      Scaffold.of(context).showSnackBar(
-                          SnackBar(content: Text('Processing Data')));
-                    }
-                  },
-                  child: Text('Submit'),
-                ),
-              )
+
+              // Note: need the builder here because the snackbar
+              //       was not getting the proper build context
+              Builder(
+                builder: (context) => Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 16.0),
+                      child: RaisedButton(
+                        onPressed: () {
+                          // Validate will return true if the form is valid, or false if
+                          // the form is invalid.
+                          if (_formKey.currentState.validate()) {
+                            // If the form is valid, we want to show a Snackbar
+                            Scaffold.of(context).showSnackBar(
+                                SnackBar(content: Text('Processing Data')));
+                          }
+                        },
+                        child: Text('Submit'),
+                      ),
+                    ),
+              ),
             ],
           )),
         ],
@@ -96,7 +101,7 @@ class CustomFormState extends State<CustomForm> {
                 onPressed: () => debugPrint("Send icon Tapped!")),
           ]),
 
-      body: buildForms(context),
+      body: buildForms(),
 
       // Creates and sets params for floatingActionButton
       // Note: Here the onPressed of the floatingActionButton
