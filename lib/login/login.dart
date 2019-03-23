@@ -109,10 +109,25 @@ class LoginState extends State<Login> {
   }
 
   // handle creating account with email
-  void _handleCreateWithEmail() async {}
+  Future<FirebaseUser> _handleCreateWithEmail() async {
+    FirebaseUser user = await _auth
+        .createUserWithEmailAndPassword(email: null, password: null)
+        .then((user) {
+      print("User with email: ${user.email}");
+      print("User with display name: ${user.displayName}");
+    });
+    return user;
+  }
 
   // handle email login
-  void _handleLoginEmail() async {}
+  Future<void> _handleLoginEmail() async {
+    _auth
+        .signInWithEmailAndPassword(email: null, password: null)
+        .catchError((onError) {})
+        .then((user) {
+      print("User logged in");
+    });
+  }
 
   // handle sign out
   Future<void> _handleSignOut(BuildContext context) async {
@@ -228,7 +243,7 @@ class LoginState extends State<Login> {
                     padding: new EdgeInsets.only(left: 40),
                     child: new Builder(builder: (BuildContext context) {
                       return new RaisedButton(
-                        onPressed: () => _handleSignOut(context),
+                        onPressed: _handleCreateWithEmail,
                         color: Colors.redAccent,
                         child: new Text(
                           "Create Account",
