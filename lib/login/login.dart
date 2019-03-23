@@ -27,8 +27,10 @@ class LoginState extends State<Login> {
   // This var keeps track of the radio button's state
   int radioGroupVal = 0;
 
+  // current google user
   GoogleSignInAccount _currentUser;
-  String _contactText;
+
+  String _imageUrl;
 
 //  @override
 //  void initState() {
@@ -72,30 +74,56 @@ class LoginState extends State<Login> {
         idToken: _googleSignInAuthentication.idToken,
       );
 
+      FirebaseUser user_;
+
       // firebase user
-      final FirebaseUser user = await _auth.signInWithCredential(credential);
+      await _auth.signInWithCredential(credential).then((FirebaseUser user) {
+        assert(user.email != null);
+        assert(user.displayName != null);
+        assert(!user.isAnonymous);
 
-      assert(user.email != null);
-      assert(user.displayName != null);
-      assert(!user.isAnonymous);
-      assert(await user.getIdToken() != null);
+        print(user.displayName);
+        print(user.email);
+        print(user.photoUrl);
 
-      // check if its the current user
-      final FirebaseUser currentUser = await _auth.currentUser();
-      assert(user.uid == currentUser.uid);
+        // setting image url
+        setState(() {
+          _imageUrl = user.photoUrl;
+        });
 
-      return user;
+        // setting user_ for further tests outside the
+        // closure
+        user_ = user;
+        return user;
+      });
+
+      if (user_ != null) {
+        assert(await user_.getIdToken() != null);
+        // check if its the current user
+        final FirebaseUser currentUser = await _auth.currentUser();
+        assert(user_.uid == currentUser.uid);
+      }
     } catch (error) {
       print(error);
     }
   }
 
+  // handle creating account with email
+  void _handleCreateWithEmail() async {}
+
   // handle email login
   void _handleLoginEmail() async {}
 
   // handle sign out
-  Future<void> _handleSignOut() async {
-    _googleSignIn.disconnect();
+  Future<void> _handleSignOut(BuildContext context) async {
+    await _googleSignIn.disconnect().then((GoogleSignInAccount account) {
+      setState(() {
+        _imageUrl = "";
+      });
+
+      Scaffold.of(context)
+          .showSnackBar(new SnackBar(content: new Text("User Signed Out")));
+    });
   }
 
   // create a scaffold
@@ -165,6 +193,7 @@ class LoginState extends State<Login> {
 
             // This row acts as a horizontal stack
             new Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: <Widget>[
                 new Container(
                   padding: new EdgeInsets.only(left: 40),
@@ -193,22 +222,43 @@ class LoginState extends State<Login> {
 
             new Center(
               child: new Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: <Widget>[
                   new Container(
                     padding: new EdgeInsets.only(left: 40),
-                    child: new RaisedButton(
-                      onPressed: _handleSignOut,
-                      color: Colors.redAccent,
-                      child: new Text(
-                        "Sign out",
-                        style:
-                            new TextStyle(color: Colors.white, fontSize: 17.0),
-                      ),
-                    ),
+                    child: new Builder(builder: (BuildContext context) {
+                      return new RaisedButton(
+                        onPressed: () => _handleSignOut(context),
+                        color: Colors.redAccent,
+                        child: new Text(
+                          "Create Account",
+                          style: new TextStyle(
+                              color: Colors.white, fontSize: 17.0),
+                        ),
+                      );
+                    }),
+                  ),
+                  new Container(
+                    padding: new EdgeInsets.only(left: 40),
+                    child: new Builder(builder: (BuildContext context) {
+                      return new RaisedButton(
+                        onPressed: () => _handleSignOut(context),
+                        color: Colors.redAccent,
+                        child: new Text(
+                          "Sign out",
+                          style: new TextStyle(
+                              color: Colors.white, fontSize: 17.0),
+                        ),
+                      );
+                    }),
                   ),
                 ],
               ),
             ),
+
+            // Image asset form/over the network
+            new Image.network(
+                _imageUrl == null || _imageUrl.isEmpty ? "" : _imageUrl),
 
             // Row for radio buttons
 

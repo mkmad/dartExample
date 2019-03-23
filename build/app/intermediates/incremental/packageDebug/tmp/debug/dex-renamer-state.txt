@@ -1,4 +1,10 @@
-#Fri Mar 08 20:30:36 PST 2019
-base.0=/Users/mkmad/projects/flutter/dartExample/build/app/intermediates/transforms/dexMerger/debug/0
+#Sat Mar 23 11:27:13 PDT 2019
+path.2=classes3.dex
+path.1=classes2.dex
 path.0=classes.dex
+renamed.2=classes3.dex
+renamed.1=classes2.dex
 renamed.0=classes.dex
+base.2=/Users/mkmad/projects/flutter/dartExample/build/app/intermediates/transforms/dexMerger/debug/0
+base.1=/Users/mkmad/projects/flutter/dartExample/build/app/intermediates/transforms/dexMerger/debug/0
+base.0=/Users/mkmad/projects/flutter/dartExample/build/app/intermediates/transforms/dexMerger/debug/0
