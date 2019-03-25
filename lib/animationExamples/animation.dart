@@ -14,16 +14,51 @@ class AnimationExample extends StatefulWidget {
   }
 }
 
-// This class creates a state for the AnimationExample
-// Note: how it extends State and its of type <AnimationExample>
-class CustomState extends State<AnimationExample> {
+// This class creates a state for the CustomStatefulWidget
+// Note: how it extends State and its of type <CustomStatefulWidget>
+class CustomState extends State<AnimationExample>
+    with SingleTickerProviderStateMixin {
   String title;
 
-  // controllers for the text fields
-  final TextEditingController _userController = new TextEditingController();
-  final TextEditingController _passwordController = new TextEditingController();
-
   CustomState({this.title});
+
+  // required animation objects
+  AnimationController _animationController;
+  Animation<double> _animation;
+  Animation<double> _tweenAnimation;
+
+  // initialize
+  @override
+  void initState() {
+    super.initState();
+    // initialize the animation controller
+    _animationController = new AnimationController(
+        vsync: this, duration: const Duration(seconds: 5));
+
+    // initialize a curved animation to the animation object
+    _animation = new CurvedAnimation(
+        parent: _animationController, curve: Curves.elasticInOut);
+    _animation.addListener(() {
+      setState(() {
+        debugPrint("Animation value: ${_animation.value}");
+        debugPrint("Animation Controller value: ${_animationController.value}");
+      });
+    });
+
+    _tweenAnimation =
+        new Tween(begin: 0.0, end: 300.0).animate(_animationController);
+
+    // move forward with the animation
+    _animationController.forward(from: 0.0);
+  }
+
+  // clear things(states, animations etc., here)
+  @override
+  void dispose() {
+    // dispose all the animation here
+    _animationController.dispose();
+    super.dispose();
+  }
 
   Scaffold createScafflod() {
     /*
@@ -52,123 +87,44 @@ class CustomState extends State<AnimationExample> {
           ]),
 
       // Creates and sets params for body of scaffold
-      body: new Container(
-        padding: EdgeInsets.only(top: 48.0, left: 24.0, right: 24.0),
-        child: new ListView(
-          children: <Widget>[
-            new Center(
+      body: new Center(
+          child: new Column(
+        children: <Widget>[
+          new Container(
+            child: Text(
+              "Animation",
+              // increase the font size along with the _animation.value
+              style: new TextStyle(fontSize: 25 * _animation.value),
+            ),
+          ),
+          new SizedBox(
+            height: 25.0,
+          ),
+          new Container(
+            child: Text(
+              _animationController.isAnimating
+                  ? _tweenAnimation.value.toString()
+                  : "Tween Animation",
+              // increase the font size along with the _animation.value
+              style: new TextStyle(fontSize: 0.1 * _tweenAnimation.value),
+            ),
+          ),
+          new RaisedButton(
               child: new Text(
-                'Welcome to Login Page',
+                "Animate Again",
                 style: new TextStyle(
-                  fontSize: 22.00,
+                  fontSize: 16.0,
                   fontWeight: FontWeight.bold,
+                  color: Colors.white,
                 ),
               ),
-            ),
-            new SizedBox(
-              height: 34.0,
-            ),
-            new Container(
-              height: 120.0,
-              width: 400.0,
-              color: Colors.white,
-              child: new Column(
-                children: <Widget>[
-                  new TextFormField(
-                    // Note how we declare a controller and decoration
-                    // to this text field
-                    controller: _userController,
-                    decoration: new InputDecoration(
-                      hintText: "username",
-                      icon: new Icon(
-                        Icons.person,
-                        color: Colors.deepOrange,
-                      ),
-                      focusedBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(color: Colors.deepOrange),
-                      ),
-                    ),
-                    cursorColor: Colors.deepOrangeAccent,
-                    validator: null,
-                  ),
-                  new TextFormField(
-                    // Note how we declare a controller and decoration
-                    // to this text field
-                    controller: _passwordController,
-                    decoration: new InputDecoration(
-                      hintText: "password",
-                      icon: new Icon(
-                        Icons.lock,
-                        color: Colors.deepOrange,
-                      ),
-                      focusedBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(color: Colors.deepOrange),
-                      ),
-                    ),
-                    cursorColor: Colors.deepOrangeAccent,
-                    // obscureText hides the password while typing
-                    obscureText: true,
-                    validator: null,
-                  )
-                ],
-              ),
-            ),
-
-            // IntrinsicWidth will make all the widgets inside
-            // a row or column have the same size (h & w) as the
-            // biggest widget in the row/column
-            IntrinsicWidth(
-              child: new Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  new Expanded(
-                    child: SizedBox(
-                        height: 50,
-                        child: new RaisedButton(
-                            color: Colors.deepOrangeAccent,
-                            child: new Text(
-                              'Login',
-                              style: new TextStyle(
-                                color: Colors.white,
-                                fontSize: 18.0,
-                              ),
-                            ),
-                            onPressed: () {},
-                            shape: new RoundedRectangleBorder(
-                                borderRadius:
-                                    new BorderRadius.circular(30.0)))),
-                  ),
-
-                  // add an empty space between the buttons( since I am
-                  // using expanded the buttons tend to stick to each
-                  // other)
-                  new SizedBox(
-                    width: 10.0,
-                  ),
-
-                  new Expanded(
-                    child: SizedBox(
-                        height: 50,
-                        child: new RaisedButton(
-                            color: Colors.deepOrangeAccent,
-                            child: new Text(
-                              'Register',
-                              style: new TextStyle(
-                                color: Colors.white,
-                                fontSize: 18.0,
-                              ),
-                            ),
-                            onPressed: () {},
-                            shape: new RoundedRectangleBorder(
-                                borderRadius:
-                                    new BorderRadius.circular(30.0)))),
-                  ),
-                ],
-              ),
-            )
-          ],
-        ),
-      ),
+              color: Colors.deepOrange,
+              onPressed: () => {
+                    // Note: This is how you start an animation
+                    _animationController.forward(from: 0.0)
+                  }),
+        ],
+      )),
 
       // Creates and sets params for floatingActionButton
       floatingActionButton: new FloatingActionButton(
